@@ -1,6 +1,6 @@
 [
   {
-    "purpose": "Updates or inserts customer lifetime value and order count into a customer scores table based on sales order data.",
+    "purpose": "Updates or inserts customer lifetime value and order count into a dedicated scores table based on sales order data.",
     "source_tables": [
       "analytics.sales_orders"
     ],
@@ -8,21 +8,21 @@
       "analytics.customer_scores"
     ],
     "transformations": [
-      "Calculates lifetime_value by summing order_amount per customer_id.",
-      "Calculates order_count by counting orders per customer_id.",
-      "Aggregates data by customer_id."
+      "Calculates lifetime_value by summing order_amount for each customer.",
+      "Calculates order_count by counting orders for each customer.",
+      "Upserts (MERGE) the aggregated customer scores into the target table, updating existing records or inserting new ones."
     ],
-    "business_logic": "Customer scores are updated if a customer exists in the scores table, otherwise, a new entry is created with their aggregated lifetime value and order count from sales orders.",
+    "business_logic": "Customer lifetime value and total order count are aggregated from sales transactions and maintained in a customer scores table for analytics.",
     "dependencies": [
-      "analytics.customer_scores",
-      "analytics.sales_orders"
+      "analytics.sales_orders",
+      "analytics.customer_scores"
     ],
     "file_name": "sp_update_customer_scores.sql",
     "file_type": "stored_procedure",
     "file_path": "sql/stored_procedures/sp_update_customer_scores.sql"
   },
   {
-    "purpose": "Refreshes the `daily_sales` table in the `analytics` schema by truncating existing data and reloading it from the `staging.sales_orders` table.",
+    "purpose": "Refreshes the `analytics.daily_sales` table by truncating its current data and reloading it with sales order information, including a calculated order amount.",
     "source_tables": [
       "staging.sales_orders"
     ],
@@ -30,19 +30,19 @@
       "analytics.daily_sales"
     ],
     "transformations": [
-      "Calculates `order_amount` as `quantity * price`"
+      "Calculates `order_amount` by multiplying `quantity` and `price`"
     ],
-    "business_logic": "Implements a full refresh strategy for daily sales by clearing the target table before inserting all current sales order records.",
+    "business_logic": "Daily sales data is completely overwritten with fresh sales order details and their calculated total amounts from the staging area.",
     "dependencies": [
-      "analytics.daily_sales",
-      "staging.sales_orders"
+      "analytics.daily_sales (table)",
+      "staging.sales_orders (table)"
     ],
     "file_name": "sp_refresh_daily_sales.sql",
     "file_type": "stored_procedure",
     "file_path": "sql/stored_procedures/sp_refresh_daily_sales.sql"
   },
   {
-    "purpose": "This SQL creates an incremental sales orders fact table by joining raw order data with product dimension details and calculating order amounts.",
+    "purpose": "This SQL creates an enriched sales order dataset by joining raw order details with product dimensions and calculating the total order amount.",
     "source_tables": [
       "raw.orders",
       "dim_products"
@@ -51,22 +51,20 @@
       "sales_orders"
     ],
     "transformations": [
-      "Joins raw order data with product lookup data based on product_id.",
-      "Calculates order_amount by multiplying quantity and price.",
-      "Selects relevant order and product attributes for analysis.",
-      "Configured for incremental materialization using order_id as the unique key."
+      "Joins raw order data with product lookup information based on product_id",
+      "Calculates the 'order_amount' by multiplying quantity and price"
     ],
-    "business_logic": "It consolidates raw sales order transactions with their respective product categories and calculates the total monetary value for each order item, preparing data for analytical reporting.",
+    "business_logic": "Combines transactional order data with static product attributes and computes the total value for each order line item.",
     "dependencies": [
-      "raw.orders (dbt source)",
-      "dim_products (dbt ref model)"
+      "raw.orders",
+      "dim_products"
     ],
     "file_name": "sales_orders.sql",
     "file_type": "script",
     "file_path": "sql/dbt_models/sales_orders.sql"
   },
   {
-    "purpose": "Extracts product information from the raw products source table to create a dimension table.",
+    "purpose": "Creates a dimension table for products by selecting key attributes from the raw products source.",
     "source_tables": [
       "raw.products"
     ],
@@ -74,18 +72,18 @@
       "dim_products"
     ],
     "transformations": [
-      "Direct column selection"
+      "Column selection"
     ],
-    "business_logic": "Selects core product attributes without applying specific business rules or calculations.",
+    "business_logic": "Extracts core product attributes directly from the raw data for use in a dimension model.",
     "dependencies": [
-      "source:raw.products"
+      "raw.products"
     ],
     "file_name": "dim_products.sql",
     "file_type": "model",
     "file_path": "sql/dbt_models/dim_products.sql"
   },
   {
-    "purpose": "This SQL script creates a customer summary table by combining customer details with aggregated order statistics.",
+    "purpose": "Creates a summary table consolidating customer demographic details with their total revenue and order count.",
     "source_tables": [
       "sales_orders",
       "raw.customers"
@@ -94,10 +92,12 @@
       "customer_summary"
     ],
     "transformations": [
-      "Aggregates sales orders by customer to calculate total revenue and total orders.",
-      "Joins customer demographic information with their aggregated order statistics using a LEFT JOIN on customer_id."
+      "Aggregates sales orders to calculate total revenue (SUM(quantity * price)) per customer.",
+      "Counts total orders per customer (COUNT(*)).",
+      "Joins customer attributes with aggregated order data using customer_id.",
+      "Ensures all customers are included using a LEFT JOIN."
     ],
-    "business_logic": "It computes the total revenue and order count for each customer based on sales order data and links this to their first name, last name, and region.",
+    "business_logic": "Each customer's total revenue is calculated by summing the product of quantity and price across all their sales orders, and their total orders count is the number of individual order entries, with all customer details preserved even if they have no associated orders.",
     "dependencies": [
       "sales_orders",
       "raw.customers"
@@ -115,10 +115,10 @@
       "analytics.vw_top_customers"
     ],
     "transformations": [
-      "Calculates the sum of order amounts per customer",
-      "Filters customers based on their aggregated total spend"
+      "Aggregates order amounts by customer",
+      "Filters customers based on total spend"
     ],
-    "business_logic": "Customers are deemed 'top' if their cumulative order amount surpasses 10,000.",
+    "business_logic": "A customer is considered a 'top customer' if their total order amount is greater than 10000.",
     "dependencies": [
       "analytics.sales_orders"
     ],
@@ -127,7 +127,7 @@
     "file_path": "sql/views/vw_top_customers.sql"
   },
   {
-    "purpose": "This SQL script creates or replaces a clean sales table in the staging schema by selecting and transforming data from the raw sales table.",
+    "purpose": "Creates or replaces a cleaned sales staging table by selecting and transforming data from the raw sales table.",
     "source_tables": [
       "raw.sales"
     ],
@@ -135,19 +135,21 @@
       "staging.sales_clean"
     ],
     "transformations": [
-      "Casting 'order_date' to DATE using TRY_CAST for error handling.",
-      "Casting 'price' to NUMBER(10,2) using TRY_CAST for error handling."
+      "Casting order_date to DATE with TRY_CAST for error handling",
+      "Casting price to NUMBER(10,2) with TRY_CAST for error handling",
+      "Filtering out records where order_id is NULL",
+      "Filtering out records where quantity is not greater than 0"
     ],
-    "business_logic": "Filters out records where 'order_id' is null or 'quantity' is zero or less, ensuring data quality for sales transactions.",
+    "business_logic": "Only includes valid sales records with a defined order ID and a positive quantity, ensuring date and price fields are properly formatted.",
     "dependencies": [
-      "raw.sales"
+      "raw.sales table"
     ],
     "file_name": "ctas_create_sales_clean.sql",
     "file_type": "script",
     "file_path": "sql/etl/ctas_create_sales_clean.sql"
   },
   {
-    "purpose": "This SQL script enriches individual order details by joining them with customer and product information and calculating the total amount for each order item.",
+    "purpose": "This SQL script enriches raw order data by joining it with customer and product information and calculating the total order amount.",
     "source_tables": [
       "raw.orders",
       "raw.customers",
@@ -155,11 +157,10 @@
     ],
     "target_tables": [],
     "transformations": [
-      "Joins raw.orders with raw.customers on customer_id to add customer region.",
-      "Joins raw.orders with raw.products on product_id to add product category and name.",
-      "Calculates 'order_amount' by multiplying order quantity and price for each item."
+      "Performs LEFT JOINs between orders, customers, and products tables.",
+      "Calculates 'order_amount' by multiplying 'quantity' and 'price' for each order."
     ],
-    "business_logic": "It combines transactional sales data with customer and product master data to provide a unified view of each sales transaction, including customer region and product category, along with the calculated total amount for the item.",
+    "business_logic": "Combines raw transactional order details with customer demographic data (region) and product descriptive data (category, product name) to create a comprehensive view of each sale, including its total monetary value.",
     "dependencies": [
       "raw.orders",
       "raw.customers",
