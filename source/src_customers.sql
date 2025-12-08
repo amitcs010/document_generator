@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS src_customers (
+CREATE TABLE IF NOT EXISTS stage.customers (
     customer_id    BIGSERIAL PRIMARY KEY,
     first_name     TEXT,
     last_name      TEXT,

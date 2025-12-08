@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS src_sales (
+CREATE TABLE IF NOT EXISTS stage.sales (
     sale_id        BIGSERIAL PRIMARY KEY,
     customer_id    BIGINT NOT NULL,
     product_id     BIGINT NOT NULL,

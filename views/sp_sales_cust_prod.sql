@@ -13,8 +13,8 @@ SELECT
     p.product_id,
     p.product_name,
     p.category
-FROM mdl_sales s
-LEFT JOIN mdl_customers c 
+FROM sales_strat_plan.sales s
+LEFT JOIN cust_mstr.customers c 
        ON s.customer_id = c.customer_id
-LEFT JOIN mdl_products p
+LEFT JOIN matrl_mstr.products p
        ON s.product_id = p.product_id;

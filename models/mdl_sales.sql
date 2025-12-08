@@ -1,14 +1,11 @@
-DROP TABLE IF EXISTS mdl_sales;
+CREATE TABLE IF NOT EXISTS sales_strat_plan.sales (
+    sale_id        BIGSERIAL PRIMARY KEY,
+    customer_id    BIGINT NOT NULL,
+    product_id     BIGINT NOT NULL,
+    quantity       INTEGER NOT NULL,
+    price          NUMERIC(10,2) NOT NULL,
+    sale_date      TIMESTAMP NOT NULL
+);
 
-CREATE TABLE mdl_sales AS
-SELECT
-    sale_id,
-    customer_id,
-    product_id,
-    quantity,
-    price,
-    (quantity * price) AS total_value,
-    sale_date::date AS sale_date
-FROM src_sales
-WHERE quantity > 0
-  AND price > 0;
+
+
