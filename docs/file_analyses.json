@@ -1,0 +1,158 @@
+[
+  {
+    "purpose": "Creates a 'model' table for customer data by selecting directly from a source customer table.",
+    "source_tables": [
+      "src_customers"
+    ],
+    "target_tables": [
+      "mdl_customers"
+    ],
+    "transformations": [
+      "Direct column selection"
+    ],
+    "business_logic": "Populates a modeled customer table with raw customer attributes from a source system.",
+    "dependencies": [
+      "src_customers"
+    ],
+    "file_name": "mdl_customers.sql",
+    "file_type": "script",
+    "file_path": "models/mdl_customers.sql"
+  },
+  {
+    "purpose": "This script creates or recreates the `mdl_products` table by selecting all columns from `src_products`.",
+    "source_tables": [
+      "src_products"
+    ],
+    "target_tables": [
+      "mdl_products"
+    ],
+    "transformations": [
+      "Direct column selection and replication of data from source to target"
+    ],
+    "business_logic": "None explicitly defined; it's a direct data replication.",
+    "dependencies": [
+      "src_products table"
+    ],
+    "file_name": "mdl_products.sql",
+    "file_type": "script",
+    "file_path": "models/mdl_products.sql"
+  },
+  {
+    "purpose": "Creates a modeled sales table (`mdl_sales`) by selecting, transforming, and filtering data from the raw sales source table (`src_sales`).",
+    "source_tables": [
+      "src_sales"
+    ],
+    "target_tables": [
+      "mdl_sales"
+    ],
+    "transformations": [
+      "Calculates `total_value` as the product of `quantity` and `price`",
+      "Casts `sale_date` to a `date` data type"
+    ],
+    "business_logic": "Only includes sales records where both `quantity` and `price` are positive values.",
+    "dependencies": [
+      "src_sales"
+    ],
+    "file_name": "mdl_sales.sql",
+    "file_type": "script",
+    "file_path": "models/mdl_sales.sql"
+  },
+  {
+    "purpose": "This stored procedure creates or replaces three model tables (mdl_sales, mdl_customers, mdl_products) by extracting and transforming data from their respective source tables.",
+    "source_tables": [
+      "src_sales",
+      "src_customers",
+      "src_products"
+    ],
+    "target_tables": [
+      "mdl_sales",
+      "mdl_customers",
+      "mdl_products"
+    ],
+    "transformations": [
+      "Calculates total_value for sales as quantity multiplied by price",
+      "Casts sale_date to date type for sales model",
+      "Filters sales to include only records where quantity and price are greater than zero"
+    ],
+    "business_logic": "Sales model data is restricted to records with positive quantity and price.",
+    "dependencies": [
+      "src_sales",
+      "src_customers",
+      "src_products"
+    ],
+    "file_name": "sp_load_models.sql",
+    "file_type": "stored_procedure",
+    "file_path": "stored_procedures/sp_load_models.sql"
+  },
+  {
+    "purpose": "This SQL creates a view that combines sales transaction details with corresponding customer and product information.",
+    "source_tables": [
+      "mdl_sales",
+      "mdl_customers",
+      "mdl_products"
+    ],
+    "target_tables": [
+      "vw_sales_customer_product"
+    ],
+    "transformations": [
+      "Performs left joins between sales, customers, and products tables based on their respective IDs.",
+      "Selects specific columns from each joined table."
+    ],
+    "business_logic": "The view consolidates sales, customer, and product data to provide a comprehensive overview of sales transactions, ensuring all sales records are retained.",
+    "dependencies": [
+      "mdl_sales",
+      "mdl_customers",
+      "mdl_products"
+    ],
+    "file_name": "sp_sales_cust_prod.sql",
+    "file_type": "view",
+    "file_path": "views/sp_sales_cust_prod.sql"
+  },
+  {
+    "purpose": "This SQL script defines and creates the `src_products` table to store product information.",
+    "source_tables": [],
+    "target_tables": [
+      "src_products"
+    ],
+    "transformations": [
+      "product_id is an auto-incrementing primary key (BIGSERIAL)",
+      "price is stored as a NUMERIC type with 10 digits total and 2 decimal places",
+      "updated_at defaults to the current timestamp upon row creation"
+    ],
+    "business_logic": "It establishes the schema for product data, including a unique identifier, descriptive fields, price, and an audit timestamp.",
+    "dependencies": [],
+    "file_name": "src_products.sql",
+    "file_type": "script",
+    "file_path": "source/src_products.sql"
+  },
+  {
+    "purpose": "script SQL file",
+    "source_tables": [],
+    "target_tables": [
+      "if"
+    ],
+    "transformations": [
+      "Data transformation"
+    ],
+    "business_logic": "See SQL file for details",
+    "dependencies": [],
+    "file_name": "src_sales.sql",
+    "file_type": "script",
+    "file_path": "source/src_sales.sql"
+  },
+  {
+    "purpose": "script SQL file",
+    "source_tables": [],
+    "target_tables": [
+      "if"
+    ],
+    "transformations": [
+      "Data transformation"
+    ],
+    "business_logic": "See SQL file for details",
+    "dependencies": [],
+    "file_name": "src_customers.sql",
+    "file_type": "script",
+    "file_path": "source/src_customers.sql"
+  }
+]
