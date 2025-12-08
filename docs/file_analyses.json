@@ -1,6 +1,6 @@
 [
   {
-    "purpose": "Creates or refreshes the `mdl_customers` table with selected customer data from the `src_customers` table.",
+    "purpose": "This SQL script creates or recreates the `mdl_customers` table by selecting all customer-related columns from `src_customers`.",
     "source_tables": [
       "src_customers"
     ],
@@ -8,18 +8,18 @@
       "mdl_customers"
     ],
     "transformations": [
-      "Direct column selection from source to target"
+      "Direct column selection"
     ],
-    "business_logic": "Populates a modeled customer table with raw customer data.",
+    "business_logic": "All customer records and their specified attributes are replicated from the source table without modification or filtering.",
     "dependencies": [
-      "src_customers table"
+      "src_customers"
     ],
     "file_name": "mdl_customers.sql",
     "file_type": "script",
     "file_path": "models/mdl_customers.sql"
   },
   {
-    "purpose": "This SQL script creates or recreates the `mdl_products` table by selecting specific columns directly from the `src_products` table.",
+    "purpose": "This SQL script creates or recreates the mdl_products table by selecting all columns from src_products.",
     "source_tables": [
       "src_products"
     ],
@@ -27,9 +27,9 @@
       "mdl_products"
     ],
     "transformations": [
-      "Direct column selection"
+      "Direct column selection from source to target"
     ],
-    "business_logic": "The script directly mirrors product data including ID, name, category, price, and update timestamp from a source table to a model table without applying any specific business rules or calculations.",
+    "business_logic": "This script stages product data by replicating all columns from the source without applying specific business rules within the query itself.",
     "dependencies": [
       "src_products table"
     ],
@@ -38,7 +38,7 @@
     "file_path": "models/mdl_products.sql"
   },
   {
-    "purpose": "Creates or recreates the mdl_sales table by selecting and transforming sales data from src_sales.",
+    "purpose": "Creates and populates a materialized data layer table for sales, including calculated total value and standardized date format.",
     "source_tables": [
       "src_sales"
     ],
@@ -46,10 +46,10 @@
       "mdl_sales"
     ],
     "transformations": [
-      "Calculates total_value from quantity and price",
-      "Casts sale_date to date type"
+      "Calculates 'total_value' as quantity multiplied by price",
+      "Casts 'sale_date' to a date data type"
     ],
-    "business_logic": "Includes only sales records where both quantity and price are greater than zero.",
+    "business_logic": "Only includes sales records where both quantity and price are greater than zero.",
     "dependencies": [
       "src_sales"
     ],
@@ -58,7 +58,7 @@
     "file_path": "models/mdl_sales.sql"
   },
   {
-    "purpose": "This procedure refreshes three analytical model tables: sales, customers, and products, by extracting data from their respective source tables.",
+    "purpose": "This stored procedure refreshes three analytical model tables (mdl_sales, mdl_customers, mdl_products) by loading and transforming data from their respective source tables.",
     "source_tables": [
       "src_sales",
       "src_customers",
@@ -70,21 +70,19 @@
       "mdl_products"
     ],
     "transformations": [
-      "Calculates total_value as quantity multiplied by price for sales records",
-      "Casts sale_date to a DATE type for sales records"
+      "Calculate total_value by multiplying quantity and price for sales data.",
+      "Cast sale_date to date type for sales data."
     ],
-    "business_logic": "Sales records are filtered to include only those where quantity and price are positive.",
+    "business_logic": "Sales records are included only if both quantity and price are greater than zero.",
     "dependencies": [
-      "src_sales",
-      "src_customers",
-      "src_products"
+      "N/A"
     ],
     "file_name": "sp_load_models.sql",
     "file_type": "stored_procedure",
     "file_path": "stored_procedures/sp_load_models.sql"
   },
   {
-    "purpose": "Creates a view consolidating sales transaction details with customer and product information.",
+    "purpose": "This SQL creates a view that combines sales transaction data with corresponding customer and product details.",
     "source_tables": [
       "mdl_sales",
       "mdl_customers",
@@ -94,11 +92,11 @@
       "vw_sales_customer_product"
     ],
     "transformations": [
-      "Performs a LEFT JOIN between mdl_sales and mdl_customers on customer_id.",
-      "Performs a LEFT JOIN between mdl_sales and mdl_products on product_id.",
-      "Selects specific columns from sales, customer, and product tables."
+      "Joins sales data with customer data using customer_id",
+      "Joins sales data with product data using product_id",
+      "Selects specific attributes from sales, customer, and product entities"
     ],
-    "business_logic": "This view combines sales transaction data with customer and product master data, ensuring all sales records are present even if a matching customer or product is not found due to LEFT JOINs.",
+    "business_logic": "The view consolidates individual sales records by linking them to the customer who made the purchase and the product that was sold, providing a comprehensive sales overview.",
     "dependencies": [
       "mdl_sales",
       "mdl_customers",
@@ -109,17 +107,17 @@
     "file_path": "views/sp_sales_cust_prod.sql"
   },
   {
-    "purpose": "Defines a new table named `src_products` to store detailed product information.",
+    "purpose": "This SQL script creates the 'src_products' table to store product information.",
     "source_tables": [],
     "target_tables": [
       "src_products"
     ],
     "transformations": [
-      "Define `product_id` as an auto-incrementing primary key (`BIGSERIAL`)",
-      "Enforce `NUMERIC(10,2)` data type for the `price` column",
-      "Set the `updated_at` column to the current timestamp by default upon record creation/update"
+      "product_id is an auto-incrementing BIGSERIAL primary key",
+      "price is stored as a NUMERIC with 10 total digits and 2 decimal places",
+      "updated_at automatically defaults to the current timestamp upon row insertion/update"
     ],
-    "business_logic": "To establish a structured schema for recording product details including unique identification, name, category, price, and a timestamp of last modification.",
+    "business_logic": "Establishes a schema for product data, including unique identification, name, category, price with specific precision, and an automatically managed timestamp for record updates.",
     "dependencies": [],
     "file_name": "src_products.sql",
     "file_type": "script",
