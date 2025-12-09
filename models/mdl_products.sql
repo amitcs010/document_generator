@@ -9,5 +9,4 @@ CREATE TABLE IF NOT EXISTS matrl_mstr.products (
     updated_at     TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE mdl_products AS
 
