@@ -1,0 +1,165 @@
+[
+  {
+    "purpose": "This SQL script creates a 'products' table in the 'stage' schema to store product information.",
+    "source_tables": [],
+    "target_tables": [
+      "stage.products"
+    ],
+    "transformations": [
+      "Product ID (product_id) is defined as an auto-incrementing BIGSERIAL primary key.",
+      "Price (price) is constrained to a NUMERIC type with 10 total digits and 2 decimal places.",
+      "The 'updated_at' column automatically defaults to the current timestamp using NOW() upon row insertion."
+    ],
+    "business_logic": "The table is designed to hold core product data including a unique identifier, name, category, price, and an audit timestamp for when the record was last updated.",
+    "dependencies": [],
+    "file_name": "src_products.sql",
+    "file_type": "script",
+    "file_path": "source/src_products.sql"
+  },
+  {
+    "purpose": "This SQL script defines and creates the 'customers' table within the 'stage' schema to store customer information.",
+    "source_tables": [],
+    "target_tables": [
+      "stage.customers"
+    ],
+    "transformations": [
+      "Assigns an auto-incrementing unique ID (BIGSERIAL) for customer_id, serving as the primary key.",
+      "Sets 'created_at' timestamp to the current time by default upon row insertion."
+    ],
+    "business_logic": "Establishes the schema and primary key for storing customer demographic and creation date information in the staging area.",
+    "dependencies": [],
+    "file_name": "src_customers.sql",
+    "file_type": "script",
+    "file_path": "source/src_customers.sql"
+  },
+  {
+    "purpose": "This SQL creates a staging table named `stage.sales` to store individual sales transaction records.",
+    "source_tables": [],
+    "target_tables": [
+      "stage.sales"
+    ],
+    "transformations": [],
+    "business_logic": "The schema defines a sales transaction record including customer, product, quantity, price, and date, with each sale having a unique identifier and all core attributes being mandatory.",
+    "dependencies": [],
+    "file_name": "src_sales.sql",
+    "file_type": "script",
+    "file_path": "source/src_sales.sql"
+  },
+  {
+    "purpose": "Creates the `sales_strat_plan.sales` table to store detailed sales transaction records.",
+    "source_tables": [],
+    "target_tables": [
+      "sales_strat_plan.sales"
+    ],
+    "transformations": [],
+    "business_logic": "Establishes the data model for sales transactions, defining essential attributes and constraints like unique sale IDs and mandatory customer, product, quantity, price, and date fields.",
+    "dependencies": [],
+    "file_name": "mdl_sales.sql",
+    "file_type": "script",
+    "file_path": "models/mdl_sales.sql"
+  },
+  {
+    "purpose": "This SQL script defines the schema for a products table within the matrl_mstr schema, including product details and an update timestamp.",
+    "source_tables": [],
+    "target_tables": [
+      "matrl_mstr.products"
+    ],
+    "transformations": [
+      "product_id is defined as an auto-incrementing primary key.",
+      "price is constrained to two decimal places.",
+      "updated_at automatically defaults to the current timestamp upon insertion."
+    ],
+    "business_logic": "The script establishes a product catalog structure where each product has a unique identifier, a descriptive name, category, and a price recorded with two decimal places, along with an automatic timestamp of its creation.",
+    "dependencies": [
+      "The script relies on the existence of the matrl_mstr schema."
+    ],
+    "file_name": "mdl_products.sql",
+    "file_type": "script",
+    "file_path": "models/mdl_products.sql"
+  },
+  {
+    "purpose": "This SQL script creates a new customer master table named `cust_mstr.customers`, first ensuring any pre-existing `mdl_customers` table is removed.",
+    "source_tables": [],
+    "target_tables": [
+      "mdl_customers",
+      "cust_mstr.customers"
+    ],
+    "transformations": [
+      "customer_id is defined as a BIGSERIAL PRIMARY KEY, ensuring unique, auto-incrementing identifiers for each customer record.",
+      "created_at is assigned a default value of the current timestamp using NOW(), capturing the record creation time automatically."
+    ],
+    "business_logic": "The script establishes a schema for customer data, including unique identification, personal information, geographic region, and an automated timestamp for record creation.",
+    "dependencies": [],
+    "file_name": "mdl_customers.sql",
+    "file_type": "script",
+    "file_path": "models/mdl_customers.sql"
+  },
+  {
+    "purpose": "stored_procedure SQL file",
+    "source_tables": [
+      "stage.products"
+    ],
+    "target_tables": [
+      "matrl_mstr.products"
+    ],
+    "transformations": [
+      "Data transformation"
+    ],
+    "business_logic": "See SQL file for details",
+    "dependencies": [],
+    "file_name": "sp_products.sql",
+    "file_type": "stored_procedure",
+    "file_path": "stored_procedures/sp_products.sql"
+  },
+  {
+    "purpose": "stored_procedure SQL file",
+    "source_tables": [
+      "stage.sales"
+    ],
+    "target_tables": [
+      "sales_strat_plan.sales"
+    ],
+    "transformations": [
+      "Data transformation"
+    ],
+    "business_logic": "See SQL file for details",
+    "dependencies": [],
+    "file_name": "sp_sales.sql",
+    "file_type": "stored_procedure",
+    "file_path": "stored_procedures/sp_sales.sql"
+  },
+  {
+    "purpose": "stored_procedure SQL file",
+    "source_tables": [
+      "stage.customers"
+    ],
+    "target_tables": [
+      "cust_mstr.customers"
+    ],
+    "transformations": [
+      "Data transformation"
+    ],
+    "business_logic": "See SQL file for details",
+    "dependencies": [],
+    "file_name": "sp_load_models.sql",
+    "file_type": "stored_procedure",
+    "file_path": "stored_procedures/sp_load_models.sql"
+  },
+  {
+    "purpose": "view SQL file",
+    "source_tables": [
+      "cust_mstr.customers",
+      "sales_strat_plan.sales",
+      "matrl_mstr.products"
+    ],
+    "target_tables": [],
+    "transformations": [
+      "Data transformation"
+    ],
+    "business_logic": "See SQL file for details",
+    "dependencies": [],
+    "file_name": "sp_sales_cust_prod.sql",
+    "file_type": "view",
+    "file_path": "views/sp_sales_cust_prod.sql"
+  }
+]
