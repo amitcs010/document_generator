@@ -1,94 +1,98 @@
 [
   {
-    "purpose": "Creates the 'products' table within the 'stage' schema to store product information.",
+    "purpose": "This SQL script creates the `stage.products` table to store product information if it does not already exist.",
     "source_tables": [],
     "target_tables": [
       "stage.products"
     ],
     "transformations": [
-      "product_id is an auto-incrementing primary key (BIGSERIAL)",
-      "price is stored as a numeric value with 10 total digits and 2 decimal places",
-      "updated_at automatically defaults to the current timestamp upon record creation"
+      "The `product_id` column is an auto-incrementing primary key.",
+      "The `price` column is defined as a numeric type with 10 digits total and 2 decimal places.",
+      "The `updated_at` column automatically defaults to the current timestamp upon row insertion."
     ],
-    "business_logic": "Defines the data structure for product records, including unique identification, descriptive attributes, pricing, and a creation/update timestamp.",
+    "business_logic": "The table structure defines how product data, including a unique ID, name, category, and price with specific precision, should be stored, along with an automatic timestamp for record updates or creation.",
     "dependencies": [
-      "schema 'stage' must exist"
+      "schema: stage"
     ],
     "file_name": "src_products.sql",
     "file_type": "script",
     "file_path": "source/src_products.sql"
   },
   {
-    "purpose": "This SQL script creates the 'customers' table in the 'stage' schema to store customer data.",
+    "purpose": "This SQL script creates the 'customers' staging table with defined columns and default values.",
     "source_tables": [],
     "target_tables": [
       "stage.customers"
     ],
     "transformations": [
-      "customer_id is defined as a BIGSERIAL PRIMARY KEY, providing auto-incrementing unique identifiers.",
-      "created_at column defaults to the current timestamp at row insertion."
+      "customer_id is defined as a BIGSERIAL primary key, ensuring unique auto-incrementing identifiers.",
+      "created_at column automatically records the current timestamp upon row insertion."
     ],
-    "business_logic": "The table schema is designed to capture core customer attributes including unique identification, personal details, contact information, geographic region, and creation timestamp.",
+    "business_logic": "Establishes the schema for storing customer information in a staging environment, including basic customer details, a unique identifier, and a creation timestamp.",
     "dependencies": [],
     "file_name": "src_customers.sql",
     "file_type": "script",
     "file_path": "source/src_customers.sql"
   },
   {
-    "purpose": "Creates the `stage.sales` table to store raw sales transaction data.",
+    "purpose": "Defines the schema for a `stage.sales` table to store raw sales transaction data.",
     "source_tables": [],
     "target_tables": [
       "stage.sales"
     ],
     "transformations": [],
-    "business_logic": "Defines the schema for sales transactions, ensuring unique sales identifiers (`sale_id`) and mandating customer, product, quantity, price, and sale date for each record.",
-    "dependencies": [],
+    "business_logic": "Records individual sales transactions, ensuring unique identification (`sale_id` primary key), mandatory customer, product, quantity, price, and sale date, with specific data types and precision for financial values.",
+    "dependencies": [
+      "schema:stage"
+    ],
     "file_name": "src_sales.sql",
     "file_type": "script",
     "file_path": "source/src_sales.sql"
   },
   {
-    "purpose": "Creates the `sales` table within the `sales_strat_plan` schema to store individual sales transaction records.",
+    "purpose": "This SQL script creates a new table named `sales` within the `sales_strat_plan` schema to store sales transaction data if it doesn't already exist.",
     "source_tables": [],
     "target_tables": [
       "sales_strat_plan.sales"
     ],
     "transformations": [],
-    "business_logic": "The `sales` table schema enforces a unique `sale_id` for each transaction and requires non-null values for customer, product, quantity, price, and sale date, with price being a numeric value with two decimal places.",
+    "business_logic": "The script defines the structure for a sales transaction table, ensuring unique sales IDs via a primary key and enforcing data types and NOT NULL constraints for critical sales attributes like customer, product, quantity, price, and sale date.",
     "dependencies": [],
     "file_name": "mdl_sales.sql",
     "file_type": "script",
     "file_path": "models/mdl_sales.sql"
   },
   {
-    "purpose": "This SQL file creates the `matrl_mstr.products` table to store product details and begins the definition of another table named `mdl_products`.",
+    "purpose": "Creates a new 'products' table in the 'matrl_mstr' schema to store product information.",
     "source_tables": [],
     "target_tables": [
-      "matrl_mstr.products",
+      "matrl_mstr.products"
+    ],
+    "transformations": [
+      "product_id is an auto-incrementing primary key (BIGSERIAL)",
+      "price is stored as a numeric value with 10 digits total and 2 decimal places (NUMERIC(10,2))",
+      "updated_at automatically records the current timestamp upon row creation if not specified (TIMESTAMP DEFAULT NOW())"
+    ],
+    "business_logic": "Establishes a schema for storing product master data, ensuring each product has a unique identifier, along with its name, category, price, and a timestamp for auditing.",
+    "dependencies": [
       "mdl_products"
     ],
-    "transformations": [],
-    "business_logic": "The `matrl_mstr.products` table is designed to uniquely identify products with `product_id`, store descriptive details like `product_name` and `category`, track pricing with `price`, and record the last modification time via `updated_at`.",
-    "dependencies": [],
     "file_name": "mdl_products.sql",
     "file_type": "script",
     "file_path": "models/mdl_products.sql"
   },
   {
-    "purpose": "This SQL script drops a temporary table and then creates a new customer master table with a defined schema.",
+    "purpose": "Creates a new customer master table named 'customers' in the 'cust_mstr' schema to store core customer information.",
     "source_tables": [],
     "target_tables": [
       "cust_mstr.customers"
     ],
     "transformations": [
-      "customer_id is automatically generated as a primary key using BIGSERIAL",
-      "created_at automatically defaults to the current timestamp upon row creation"
+      "Generates a unique 'customer_id' automatically for each new record",
+      "Automatically populates the 'created_at' column with the current timestamp upon record creation"
     ],
-    "business_logic": "Defines the structure for a customer master table including unique ID, personal details, region, and creation timestamp.",
-    "dependencies": [
-      "mdl_customers (potentially a legacy or temporary table to be dropped)",
-      "cust_mstr (schema where the customers table is created)"
-    ],
+    "business_logic": "The table captures basic customer identification details (name, email, region) and tracks the creation timestamp for each customer record, ensuring unique identification via 'customer_id'.",
+    "dependencies": [],
     "file_name": "mdl_customers.sql",
     "file_type": "script",
     "file_path": "models/mdl_customers.sql"
@@ -148,8 +152,8 @@
     "purpose": "view SQL file",
     "source_tables": [
       "cust_mstr.customers",
-      "matrl_mstr.products",
-      "sales_strat_plan.sales"
+      "sales_strat_plan.sales",
+      "matrl_mstr.products"
     ],
     "target_tables": [],
     "transformations": [

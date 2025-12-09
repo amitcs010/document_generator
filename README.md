@@ -1,3 +1,5 @@
+# Repository Summary
+
 # Repository Analysis Report
 
 ## Executive Summary
@@ -67,8 +69,7 @@ flowchart TD
 
 ### Views
 
--   **vw_sales_customer_product**\
-    A unified analytics-ready table combining customers, products, and
+-   **vw_sales_customer_product**    A unified analytics-ready table combining customers, products, and
     sales data.
 
 ### Stored Procedures
@@ -80,9 +81,7 @@ flowchart TD
 
 ### Data Models
 
--   Customer Master\
--   Product Master\
--   Sales Fact Table
+-   Customer Master-   Product Master-   Sales Fact Table
 
 ## Technical Assessment
 
