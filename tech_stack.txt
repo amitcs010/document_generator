@@ -1,0 +1,11 @@
+# RepoMigrator Configuration
+# This file tells the migration pipeline what to do
+
+source_platform=redshift
+source_language=sql
+target_platform=snowflake
+target_framework=dbt
+target_repo=myorg/ecommerce-dbt-snowflake
+output_docs=true
+output_lineage=true
+dbt_version=1.7
