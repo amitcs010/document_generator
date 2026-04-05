@@ -1,5 +1,5 @@
 # RepoMigrator Configuration
-# This file tells the migration pipeline what to do and where
+# This file tells the migration pipeline what to do and where to put converted code
 
 source_platform=redshift
 source_language=sql
