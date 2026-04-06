@@ -1,5 +1,5 @@
 # RepoMigrator Configuration
-# This file tells the migration pipeline what to do and where to put converted codes and linage diagrams
+# This file tells the migration pipeline what to do and where to put converted codes and linage diagram
 
 source_platform=redshift
 source_language=sql
